@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  postgres: 
+      image: postgres:17
+      container_name: postgres
+      environment:
+        POSTGRES_DB: serve-ease-app
+        POSTGRES_USER: testuser
+        POSTGRES_PASSWORD: testpassword
+      volumes:
+        - postgres_data:/var/lib/postgresql/data
+      ports:
+        - "5432:5432"
+      restart: always
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: testemail@email.com
+      PGADMIN_DEFAULT_PASSWORD: testpassword
+    ports: 
+      - "5054:80"
+    depends_on:
+      - postgres
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    restart: always
+
+volumes:
+  postgres_data:
+  pgadmin_data:
