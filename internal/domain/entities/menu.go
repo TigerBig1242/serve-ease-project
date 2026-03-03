@@ -14,7 +14,7 @@ type Menu struct {
 	Description string         `json:"description"`
 	Price       int            `json:"price"`
 	Image       string         `json:"image"`
-	IsActive    bool           `json:"is_available"`
+	IsActive    bool           `json:"is_active"`
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`
 	DeletedAt   gorm.DeletedAt `json:"deleted_at"`
