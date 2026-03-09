@@ -12,6 +12,7 @@ type Registry struct {
 	TableHandler  *handler.DiningTableHandler
 	QrCodeHandler *handler.CreateQrCodeHandler
 	menuHandler   *handler.MenuHandler
+	Category      *handler.CategoryHandler
 }
 
 func NewRegistry(db *gorm.DB) *Registry {
@@ -35,11 +36,23 @@ func (registry *Registry) NewDiningTableHandler() *handler.DiningTableHandler {
 
 func (registry *Registry) NewQrCodeHandler() *handler.CreateQrCodeHandler {
 	qrCodeUseCase := usecase.NewCreateQrCodeUseCase()
-	return handler.NewCreateQrCodeHandler(qrCodeUseCase)
+	menuUseCase := registry.getMenuUseCase()
+	return handler.NewCreateQrCodeHandler(qrCodeUseCase, menuUseCase)
 }
 
 func (registry *Registry) NewMenuHandler() *handler.MenuHandler {
 	menuRepo := repository.MenuInfra(registry.db)
 	menuUseCase := usecase.NewMenuUseCase(menuRepo)
 	return handler.NewMenuHandler(menuUseCase)
+}
+
+func (registry *Registry) getMenuUseCase() usecase.MenuUseCase {
+	repo := repository.MenuInfra(registry.db)
+	return usecase.NewMenuUseCase(repo)
+}
+
+func (registry *Registry) NewCategoryHandler() *handler.CategoryHandler {
+	categoryRepo := repository.CategoryInfra(registry.db)
+	categoryUseCase := usecase.NewCategoryUseCase(categoryRepo)
+	return handler.NewCategoryHandler(categoryUseCase)
 }

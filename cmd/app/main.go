@@ -57,6 +57,7 @@ func main() {
 
 	router.SetQrCodeRoute(app, request.NewQrCodeHandler())
 	router.SetMenuRoute(app, request.NewMenuHandler())
+	router.SetCategoryRoute(app, request.NewCategoryHandler())
 
 	app.Listen(":8080")
 	fmt.Println("Hello serve ease")

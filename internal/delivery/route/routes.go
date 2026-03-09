@@ -6,8 +6,9 @@ import (
 )
 
 func SetupRoute(app *fiber.App, createTableHandler *handler.DiningTableHandler) {
-	api := app.Group("/api/v1")
-	createTable := api.Group("/dining-table")
+	// api := app.Group("/api/v1")
+	// createTable := api.Group("/dining-table")
+	createTable := app.Group("/dining-table")
 	{
 		createTable.Post("/create-table", createTableHandler.Create)
 		createTable.Get("/get-list-tables", createTableHandler.GetListTables)
@@ -30,4 +31,8 @@ func SetQrCodeRoute(app *fiber.App, scanQrCodeHandler *handler.CreateQrCodeHandl
 
 func SetMenuRoute(app *fiber.App, menusHandler *handler.MenuHandler) {
 	app.Get("/get-list-menus", menusHandler.GetListMenu)
+}
+
+func SetCategoryRoute(app *fiber.App, categoryHandler *handler.CategoryHandler) {
+	app.Get("/get-category", categoryHandler.ListCategory)
 }
