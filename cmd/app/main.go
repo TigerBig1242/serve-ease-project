@@ -7,16 +7,16 @@ import (
 	"github.com/gofiber/fiber/v3"
 
 	"github.com/bigthamm/serve-ease/internal/config"
+	router "github.com/bigthamm/serve-ease/internal/delivery/route"
 	domain "github.com/bigthamm/serve-ease/internal/domain/entities"
 
-	// "github.com/bigthamm/serve-ease/internal/domain/repository"
 	"github.com/bigthamm/serve-ease/internal/infrastructure/database"
 	"github.com/bigthamm/serve-ease/internal/usecase"
 
-	"github.com/bigthamm/serve-ease/internal/infrastructure/repository"
-	// "github.com/bigthamm/serve-ease/internal/usecase"
 	"github.com/bigthamm/serve-ease/internal/delivery/handler"
-	router "github.com/bigthamm/serve-ease/internal/delivery/route"
+	"github.com/bigthamm/serve-ease/internal/infrastructure/repository"
+
+	"github.com/bigthamm/serve-ease/internal/registry"
 )
 
 func main() {
@@ -33,10 +33,16 @@ func main() {
 	if err != nil {
 		log.Fatalf("Database Migration failed: %v", err)
 	}
+
+	fmt.Println("Success QR Code saved as table_qr.png")
+
 	app := fiber.New()
 
 	app.Get("/hello", func(c fiber.Ctx) error {
-		return c.SendString("Hello World")
+		if err != nil {
+			return c.Status(500).SendString("Internal server error")
+		}
+		return c.SendString("Hello World at main.go")
 	})
 
 	// Registry Dining table
@@ -56,6 +62,9 @@ func main() {
 	menuUseCase := usecase.NewMenuUseCase(menuRepo)
 	menuHandler := handler.NewMenuHandler(menuUseCase)
 	router.SetMenuRoute(app, menuHandler)
+
+	request := registry.NewRegistry(db)
+	router.SetQrCodeRoute(app, request.NewQrCodeHandler())
 
 	app.Listen(":8080")
 	fmt.Println("Hello serve ease")

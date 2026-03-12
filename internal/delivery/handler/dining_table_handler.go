@@ -10,7 +10,7 @@ import (
 
 type DiningTableHandler struct {
 	useCase usecase.DingingTableUseCase
-	// menu         usecase.MenuUseCase
+	menu    usecase.MenuUseCase
 }
 
 type RequestBody struct {
@@ -169,3 +169,58 @@ func (handler *DiningTableHandler) GetTableAvailable(c fiber.Ctx) error {
 // 		"token":   token,
 // 	})
 // }
+
+type CreateQrCodeHandler struct {
+	createQrCode usecase.CreateQrCodeUseCase
+	menu         usecase.MenuUseCase
+}
+
+func NewCreateQrCodeHandler(createQrCode usecase.CreateQrCodeUseCase, menu usecase.MenuUseCase) *CreateQrCodeHandler {
+	return &CreateQrCodeHandler{
+		createQrCode: createQrCode,
+		menu:         menu,
+	}
+}
+
+func (handler CreateQrCodeHandler) GenerateQrCode(c fiber.Ctx) error {
+	url := handler.createQrCode.GenerateQrCode()
+
+	return c.JSON(fiber.Map{
+		"status":  "success",
+		"url":     url,
+		"message": "QR code generated successfully in your folder",
+	})
+}
+
+func (handler CreateQrCodeHandler) HandleScan(c fiber.Ctx) error {
+	token := c.Query("token")
+
+	fmt.Println("--- 2 [Handler] มีคนสแกนเข้ามาแล้ว ---")
+	fmt.Println("Token ที่ได้รับจากมือถือ :", token)
+
+	menus, err := handler.menu.GetMenus(c.Context())
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	var response []ResponseMenu
+	for _, listMenu := range menus {
+		responseMenu := ResponseMenu{
+			MenuID:      listMenu.MenuId,
+			CategoryID:  listMenu.CategoryID,
+			MenuName:    listMenu.MenuName,
+			Description: listMenu.Description,
+			Price:       listMenu.Price,
+		}
+		response = append(response, responseMenu)
+	}
+
+	return c.JSON(fiber.Map{
+		"status":  "success",
+		"message": "Scan QR Code success",
+		"data":    response,
+		"token":   token,
+	})
+}
