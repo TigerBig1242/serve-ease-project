@@ -11,11 +11,8 @@ import (
 	domain "github.com/bigthamm/serve-ease/internal/domain/entities"
 
 	"github.com/bigthamm/serve-ease/internal/infrastructure/database"
-	"github.com/bigthamm/serve-ease/internal/usecase"
 
-	"github.com/bigthamm/serve-ease/internal/delivery/handler"
-	"github.com/bigthamm/serve-ease/internal/infrastructure/repository"
-	// "github.com/bigthamm/serve-ease/internal/registry"
+	"github.com/bigthamm/serve-ease/internal/registry"
 )
 
 func main() {
@@ -44,33 +41,11 @@ func main() {
 		return c.SendString("Hello World at main.go")
 	})
 
-	// Registry Dining table
-	diningTableRepo := repository.NewDiningTableInfra(db)
-	diningTableUseCase := usecase.NewDiningTableUseCase(diningTableRepo)
-	diningTableHandler := handler.NewDiningTableHandler(diningTableUseCase)
-	router.SetupTableRoute(app, diningTableHandler)
-
-	// Registry Category
-	categoryRepo := repository.CategoryInfra(db)
-	categoryUseCase := usecase.NewCategoryUseCase(categoryRepo)
-	categoryHandler := handler.NewCategoryHandler(categoryUseCase)
-	router.SetCategoryRoute(app, categoryHandler)
-
-	// Registry Menu
-	menuRepo := repository.MenuInfra(db)
-	menuUseCase := usecase.NewMenuUseCase(menuRepo)
-	menuHandler := handler.NewMenuHandler(menuUseCase)
-	router.SetMenuRoute(app, menuHandler)
-
-	qrCodeUseCase := usecase.NewCreateQrCodeUseCase()
-	qrCodeHandler := handler.NewCreateQrCodeHandler(qrCodeUseCase, menuUseCase)
-	router.SetQrCodeRoute(app, qrCodeHandler)
-
-	// request := registry.NewRegistry(db)
-	// router.SetQrCodeRoute(app, request.NewQrCodeHandler())
-	// router.SetupTableRoute(app, request.NewDiningTableHandler())
-	// router.SetMenuRoute(app, request.NewMenuHandler())
-	// router.SetCategoryRoute(app, request.NewCategoryHandler())
+	request := registry.NewRegistry(db)
+	router.SetQrCodeRoute(app, request.NewQrCodeHandler())
+	router.SetupTableRoute(app, request.NewDiningTableHandler())
+	router.SetMenuRoute(app, request.NewMenuHandler())
+	router.SetCategoryRoute(app, request.NewCategoryHandler())
 
 	app.Listen(":8080")
 	fmt.Println("Hello serve ease")
