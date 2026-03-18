@@ -15,8 +15,7 @@ import (
 
 	"github.com/bigthamm/serve-ease/internal/delivery/handler"
 	"github.com/bigthamm/serve-ease/internal/infrastructure/repository"
-
-	"github.com/bigthamm/serve-ease/internal/registry"
+	// "github.com/bigthamm/serve-ease/internal/registry"
 )
 
 func main() {
@@ -49,7 +48,7 @@ func main() {
 	diningTableRepo := repository.NewDiningTableInfra(db)
 	diningTableUseCase := usecase.NewDiningTableUseCase(diningTableRepo)
 	diningTableHandler := handler.NewDiningTableHandler(diningTableUseCase)
-	router.SetupRoute(app, diningTableHandler)
+	router.SetupTableRoute(app, diningTableHandler)
 
 	// Registry Category
 	categoryRepo := repository.CategoryInfra(db)
@@ -63,8 +62,15 @@ func main() {
 	menuHandler := handler.NewMenuHandler(menuUseCase)
 	router.SetMenuRoute(app, menuHandler)
 
-	request := registry.NewRegistry(db)
-	router.SetQrCodeRoute(app, request.NewQrCodeHandler())
+	qrCodeUseCase := usecase.NewCreateQrCodeUseCase()
+	qrCodeHandler := handler.NewCreateQrCodeHandler(qrCodeUseCase, menuUseCase)
+	router.SetQrCodeRoute(app, qrCodeHandler)
+
+	// request := registry.NewRegistry(db)
+	// router.SetQrCodeRoute(app, request.NewQrCodeHandler())
+	// router.SetupTableRoute(app, request.NewDiningTableHandler())
+	// router.SetMenuRoute(app, request.NewMenuHandler())
+	// router.SetCategoryRoute(app, request.NewCategoryHandler())
 
 	app.Listen(":8080")
 	fmt.Println("Hello serve ease")
